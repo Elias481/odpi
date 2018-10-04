@@ -1518,7 +1518,7 @@ int dpiOci__passwordChange(dpiConn *conn, const char *userName,
 int dpiOci__ping(dpiConn *conn, dpiError *error);
 int dpiOci__rawAssignBytes(void *envHandle, const char *value,
         uint32_t valueLength, void **handle, dpiError *error);
-int dpiOci__rawPtr(void *envHandle, void *handle, void **ptr);
+int dpiOci__rawPtr(void *envHandle, void *handle, char **ptr);
 int dpiOci__rawResize(void *envHandle, void **handle, uint32_t newSize,
         dpiError *error);
 int dpiOci__rawSize(void *envHandle, void *handle, uint32_t *size);

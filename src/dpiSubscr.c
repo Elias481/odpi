@@ -401,7 +401,7 @@ static int dpiSubscr__populateMessage(dpiSubscr *subscr,
     if (dpiOci__attrGet(descriptor, DPI_OCI_DTYPE_CHDES, &rawValue, NULL,
             DPI_OCI_ATTR_CHDES_XID, "get transaction id", error) < 0)
         return DPI_FAILURE;
-    dpiOci__rawPtr(subscr->env->handle, rawValue, (void**) &message->txId);
+    dpiOci__rawPtr(subscr->env->handle, rawValue, (char**) &message->txId);
     dpiOci__rawSize(subscr->env->handle, rawValue, &message->txIdLength);
 
     // populate event specific attributes
