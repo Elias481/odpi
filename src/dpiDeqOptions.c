@@ -171,7 +171,7 @@ int dpiDeqOptions_getMsgId(dpiDeqOptions *options, const char **value,
             &rawValue, NULL, DPI_OCI_ATTR_DEQ_MSGID, "get attribute value",
             &error) < 0)
         return dpiGen__endPublicFn(options, DPI_FAILURE, &error);
-    dpiOci__rawPtr(options->env->handle, rawValue, (void**) value);
+    dpiOci__rawPtr(options->env->handle, rawValue, (char **)value);
     dpiOci__rawSize(options->env->handle, rawValue, valueLength);
     return dpiGen__endPublicFn(options, DPI_SUCCESS, &error);
 }

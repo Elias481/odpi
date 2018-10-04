@@ -313,6 +313,7 @@ extern unsigned long dpiDebugLevel;
 #define DPI_SQLT_BIN                                23
 #define DPI_SQLT_LBI                                24
 #define DPI_SQLT_UIN                                68
+#define DPI_SQLT_LVB                                95
 #define DPI_SQLT_AFC                                96
 #define DPI_SQLT_IBFLOAT                            100
 #define DPI_SQLT_IBDOUBLE                           101
@@ -777,6 +778,7 @@ typedef union {
     void **asInterval;
     void **asLobLocator;
     void **asString;
+    void **asOciraw;
     void **asStmt;
     void **asRowid;
     int *asBoolean;
@@ -1516,7 +1518,7 @@ int dpiOci__passwordChange(dpiConn *conn, const char *userName,
 int dpiOci__ping(dpiConn *conn, dpiError *error);
 int dpiOci__rawAssignBytes(void *envHandle, const char *value,
         uint32_t valueLength, void **handle, dpiError *error);
-int dpiOci__rawPtr(void *envHandle, void *handle, void **ptr);
+int dpiOci__rawPtr(void *envHandle, void *handle, char **ptr);
 int dpiOci__rawResize(void *envHandle, void **handle, uint32_t newSize,
         dpiError *error);
 int dpiOci__rawSize(void *envHandle, void *handle, uint32_t *size);

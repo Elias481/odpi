@@ -2445,7 +2445,7 @@ int dpiOci__rawAssignBytes(void *envHandle, const char *value,
 // dpiOci__rawPtr() [INTERNAL]
 //   Wrapper for OCIRawPtr().
 //-----------------------------------------------------------------------------
-int dpiOci__rawPtr(void *envHandle, void *handle, void **ptr)
+int dpiOci__rawPtr(void *envHandle, void *handle, char **ptr)
 {
     dpiError *error = NULL;
 
