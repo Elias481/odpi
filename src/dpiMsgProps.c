@@ -41,7 +41,7 @@ int dpiMsgProps__extractMsgId(dpiMsgProps *props, void *ociRaw,
 {
     const char *rawPtr;
 
-    dpiOci__rawPtr(props->env->handle, ociRaw, &rawPtr);
+    dpiOci__rawPtr(props->env->handle, ociRaw, (char **)&rawPtr);
     dpiOci__rawSize(props->env->handle, ociRaw, msgIdLength);
     if (*msgIdLength > props->bufferLength) {
         if (props->buffer) {
@@ -259,7 +259,7 @@ int dpiMsgProps_getOriginalMsgId(dpiMsgProps *props, const char **value,
             &rawValue, NULL, DPI_OCI_ATTR_ORIGINAL_MSGID,
             "get attribute value", &error) < 0)
         return dpiGen__endPublicFn(props, DPI_FAILURE, &error);
-    dpiOci__rawPtr(props->env->handle, rawValue, value);
+    dpiOci__rawPtr(props->env->handle, rawValue, (char **)value);
     dpiOci__rawSize(props->env->handle, rawValue, valueLength);
     return dpiGen__endPublicFn(props, DPI_SUCCESS, &error);
 }
