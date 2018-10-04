@@ -252,7 +252,7 @@ static int dpiObject__fromOracleValue(dpiObject *obj, dpiError *error,
             if (nativeTypeNum == DPI_NATIVE_TYPE_BYTES) {
                 asBytes = &data->value.asBytes;
                 dpiOci__rawPtr(obj->env->handle, *value->asOciraw,
-                        &asBytes->ptr);
+                        (void **)&asBytes->ptr);
                 dpiOci__rawSize(obj->env->handle, *value->asOciraw,
                         &asBytes->length);
                 asBytes->encoding = NULL;
