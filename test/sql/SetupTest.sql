@@ -119,7 +119,8 @@ create type &main_user..udt_ObjectDataTypes as object (
     TimestampLTZCol                     timestamp with local time zone,
     BinaryFltCol                        binary_float,
     BinaryDoubleCol                     binary_double,
-    SignedIntCol                        integer
+    SignedIntCol                        integer,
+    RawCol                              raw(16)
 );
 /
 
