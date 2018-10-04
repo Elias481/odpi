@@ -1086,11 +1086,11 @@ int dpiTest_1205_verifyObjectAttributes(dpiTestCase *testCase,
     const char *insertSql = "insert into TestObjectDataTypes values (:1)";
     const char *selectSql = "select ObjectCol from TestObjectDataTypes";
     const char *objectName = "UDT_OBJECTDATATYPES";
-    dpiData data, *objColValue, attrValues[13];
-    uint32_t i, bufferRowIndex, numAttrs = 13;
+    dpiData data, *objColValue, attrValues[14];
+    uint32_t i, bufferRowIndex, numAttrs = 14;
     dpiNativeTypeNum nativeTypeNum;
     dpiObjectAttrInfo attrInfo;
-    dpiObjectAttr *attrs[13];
+    dpiObjectAttr *attrs[14];
     dpiQueryInfo queryInfo;
     dpiObjectType *objType;
     dpiObject *obj;
@@ -1160,6 +1160,10 @@ int dpiTest_1205_verifyObjectAttributes(dpiTestCase *testCase,
         return dpiTestCase_setFailedFromError(testCase);
     dpiData_setInt64(&data, 123);
     if (dpiObject_setAttributeValue(obj, attrs[12], DPI_NATIVE_TYPE_INT64,
+            &data) < 0)
+        return dpiTestCase_setFailedFromError(testCase);
+    dpiData_setBytes(&data, "RawData", strlen("RawData"));
+    if (dpiObject_setAttributeValue(obj, attrs[13], DPI_NATIVE_TYPE_BYTES,
             &data) < 0)
         return dpiTestCase_setFailedFromError(testCase);
 
@@ -1246,6 +1250,8 @@ int dpiTest_1205_verifyObjectAttributes(dpiTestCase *testCase,
     if (dpiTest__compareTimestamps(testCase, dpiData_getTimestamp(&data),
             dpiData_getTimestamp(&attrValues[8])) < 0)
         return DPI_FAILURE;
+    //work with german dbtimzone here
+    dpiData_setTimestamp(&data, 2017, 6, 1, 4, 2, 1, 0, 0, 0);
     if (dpiTest__compareTimestamps(testCase, dpiData_getTimestamp(&data),
             dpiData_getTimestamp(&attrValues[9])) < 0)
         return DPI_FAILURE;
@@ -1257,6 +1263,11 @@ int dpiTest_1205_verifyObjectAttributes(dpiTestCase *testCase,
         return dpiTestCase_setFailedFromError(testCase);
     if (dpiTestCase_expectDoubleEqual(testCase,
             dpiData_getInt64(&attrValues[12]), 123) < 0)
+        return dpiTestCase_setFailedFromError(testCase);
+    if (dpiTestCase_expectStringEqual(testCase,
+            dpiData_getBytes(&attrValues[13])->ptr,
+            dpiData_getBytes(&attrValues[13])->length, "RawData",
+            strlen("RawData")) < 0)
         return dpiTestCase_setFailedFromError(testCase);
 
     // cleanup
