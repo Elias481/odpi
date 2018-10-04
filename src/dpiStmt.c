@@ -555,17 +555,23 @@ static int dpiStmt__execute(dpiStmt *stmt, uint32_t numIters,
             var->error = error;
     }
 
-    // for queries, set the OCI prefetch to a fixed value; this prevents an
+    // for queries, set the OCI prefetch to a fixed max. value; this prevents an
     // additional round trip for single row fetches while avoiding the overhead
-    // of copying from the OCI prefetch buffer to our own buffers for larger
-    // fetches
+    // of copying from the OCI prefetch buffer to our own buffers for larger fetches
+    // but allow the execute to prefetch only single row for example from pipelined
+    // table functions that yield rows slowly
     if (stmt->statementType == DPI_STMT_TYPE_SELECT) {
         prefetchSize = DPI_PREFETCH_ROWS_DEFAULT;
+        if (stmt->fetchArraySize >= DPI_PREFETCH_ROWS_DEFAULT)
+            prefetchSize = DPI_PREFETCH_ROWS_DEFAULT;
+        else
+            prefetchSize = stmt->fetchArraySize;
         if (dpiOci__attrSet(stmt->handle, DPI_OCI_HTYPE_STMT, &prefetchSize,
                 sizeof(prefetchSize), DPI_OCI_ATTR_PREFETCH_ROWS,
                 "set prefetch rows", error) < 0)
             return DPI_FAILURE;
-    }
+    } else
+        prefetchSize = 0;
 
     // clear batch errors from any previous execution
     dpiStmt__clearBatchErrors(stmt);
@@ -586,6 +592,19 @@ static int dpiStmt__execute(dpiStmt *stmt, uint32_t numIters,
         else if (error->buffer->code != 1)
             stmt->deleteFromCache = 1;
         return DPI_FAILURE;
+    }
+
+    // reset prefetch size to 0 to only take fetchArraySize into account
+    // for subsequent fetches to be able to request/fetch exactly fetchArraySize
+    // rows from server and to avoid the overhead of copying from the OCI prefetch
+    // buffer to our own buffer for each fetch
+    // small drawback of change: the small look-ahead for end-of-data is disabled
+    if (prefetchSize != 0) {
+        prefetchSize = 0;
+        if (dpiOci__attrSet(stmt->handle, DPI_OCI_HTYPE_STMT, &prefetchSize,
+                sizeof(prefetchSize), DPI_OCI_ATTR_PREFETCH_ROWS,
+                "reset prefetch rows", error) < 0)
+            return DPI_FAILURE;
     }
 
     // for all bound variables, transfer data from Oracle buffer structures to
