@@ -100,11 +100,13 @@ extern unsigned long dpiDebugLevel;
 
 // define well-known character sets
 #define DPI_CHARSET_ID_ASCII                        1
+#define DPI_CHARSET_ID_CESU8                        871
 #define DPI_CHARSET_ID_UTF8                         873
 #define DPI_CHARSET_ID_UTF16                        1000
 #define DPI_CHARSET_ID_UTF16BE                      2000
 #define DPI_CHARSET_ID_UTF16LE                      2002
 #define DPI_CHARSET_NAME_ASCII                      "ASCII"
+#define DPI_CHARSET_NAME_CESU8                      "CESU-8"
 #define DPI_CHARSET_NAME_UTF8                       "UTF-8"
 #define DPI_CHARSET_NAME_UTF16                      "UTF-16"
 #define DPI_CHARSET_NAME_UTF16BE                    "UTF-16BE"

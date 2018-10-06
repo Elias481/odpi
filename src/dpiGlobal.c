@@ -227,6 +227,8 @@ int dpiGlobal__lookupCharSet(const char *name, uint16_t *charsetId,
         *charsetId = DPI_CHARSET_ID_UTF16;
     else if (strcmp(name, DPI_CHARSET_NAME_ASCII) == 0)
         *charsetId = DPI_CHARSET_ID_ASCII;
+    else if (strcmp(name, DPI_CHARSET_NAME_CESU8) == 0)
+        *charsetId = DPI_CHARSET_ID_CESU8;
     else if (strcmp(name, DPI_CHARSET_NAME_UTF16LE) == 0 ||
             strcmp(name, DPI_CHARSET_NAME_UTF16BE) == 0)
         return dpiError__set(error, "check encoding", DPI_ERR_NOT_SUPPORTED);
