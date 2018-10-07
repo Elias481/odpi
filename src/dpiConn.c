@@ -1303,10 +1303,8 @@ int dpiConn_create(const dpiContext *context, const char *userName,
     //doesn't work (as expected...).. possibly a database describe could
     //give this information or just a query for NLS db/instance parameters....
     printf("'ServerCSID' %d (or just some return code as it was used?)\n", servercsid);
-    //check whether -1 is error (not allowed to use al16utf16 for encoding
-    //or just indicator that no "database" character set is in use but only
-    //nencoding?
-    if (servercsid < -1) {
+    //-1 is error..
+    if (servercsid < 0) {
         dpiConn__free(tempConn, &error);
         return dpiGen__endPublicFn(context, DPI_FAILURE, &error);
     }
