@@ -1306,7 +1306,7 @@ int dpiConn_create(const dpiContext *context, const char *userName,
     //check whether -1 is error (not allowed to use al16utf16 for encoding
     //or just indicator that no "database" character set is in use but only
     //nencoding?
-    if (servercsid < 0) {
+    if (servercsid < -1) {
         dpiConn__free(tempConn, &error);
         return dpiGen__endPublicFn(context, DPI_FAILURE, &error);
     }
