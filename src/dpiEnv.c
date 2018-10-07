@@ -101,6 +101,17 @@ int dpiEnv__init(dpiEnv *env, const dpiContext *context,
             return DPI_FAILURE;
     }
 
+    //disallowed but existing/defined oracle charset... (?)
+    //AL16UTF16LE (UTF16LE only available on platforms where
+    //with native LE in form of deprecated and disadvantageous
+    //UCS2 replacement "OCI_UTF16ID"
+    //disable hard by ID because this will probably lead to
+    //unhandled memory access exception
+    if (env->charsetId == 2002 || env->ncharsetId == 2002) {
+        printf("AL16UTF16LE only exists theoretically (CharsetDBs not in sync...)\n");
+        return DPI_FAILURE;
+    }
+
     // create the new environment handle
     env->context = context;
     env->versionInfo = context->versionInfo;
@@ -122,9 +133,11 @@ int dpiEnv__init(dpiEnv *env, const dpiContext *context,
     if (dpiEnv__getCharacterSetIdAndName(env, DPI_OCI_ATTR_CHARSET_ID,
             &env->charsetId, env->encoding, error) < 0)
         return DPI_FAILURE;
+    printf("DPIenv set encoding %s %u\n", env->encoding, env->charsetId);
     if (dpiEnv__getCharacterSetIdAndName(env, DPI_OCI_ATTR_NCHARSET_ID,
             &env->ncharsetId, env->nencoding, error) < 0)
         return DPI_FAILURE;
+    printf("DPIenv set nencoding %s %u\n", env->nencoding, env->ncharsetId);
 
     // acquire max bytes per character
     if (dpiOci__nlsNumericInfoGet(env->handle, &env->maxBytesPerCharacter,
@@ -135,6 +148,7 @@ int dpiEnv__init(dpiEnv *env, const dpiContext *context,
     // unless the charsets are identical
     if (env->ncharsetId == env->charsetId)
         env->nmaxBytesPerCharacter = env->maxBytesPerCharacter;
+    //hopefully not cesu or does cesu count surrogates as characters?
     else env->nmaxBytesPerCharacter = 4;
 
     // allocate base date descriptor (for converting to/from time_t)
@@ -144,6 +158,8 @@ int dpiEnv__init(dpiEnv *env, const dpiContext *context,
         return DPI_FAILURE;
 
     // populate base date with January 1, 1970
+    // this should probably be with time zone to allow proper
+    // calculation of timezones timestamps?
     if (dpiOci__nlsCharSetConvert(env->handle, env->charsetId, timezoneBuffer,
             sizeof(timezoneBuffer), DPI_CHARSET_ID_ASCII, "+00:00", 6,
             &timezoneLength, error) < 0)

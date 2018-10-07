@@ -346,6 +346,12 @@ static int dpiConn__createStandalone(dpiConn *conn, const char *userName,
         return DPI_FAILURE;
 
     // allocate the session handle
+    // probably we should use the error handle with utf-8 encoding here
+    // to be independent of client settings
+    // + probably convert attributes (at least username and password...)
+    // from env-handle charset to al32utf8(UTF-8) utiling OCI converter for
+    // this...
+    // TODO
     if (dpiOci__handleAlloc(conn->env->handle, &conn->sessionHandle,
             DPI_OCI_HTYPE_SESSION, "allocate session handle", error) < 0)
         return DPI_FAILURE;
@@ -386,6 +392,9 @@ static int dpiConn__createStandalone(dpiConn *conn, const char *userName,
         return dpiOci__passwordChange(conn, userName, userNameLength, password,
                 passwordLength, createParams->newPassword,
                 createParams->newPasswordLength, authMode, error);
+        //TO BE CHECKED: should this really return or setup default
+        //default session with stmt cache via dpiOci__sessionBegin
+        //in addition?
     }
 
     // begin the session
@@ -576,6 +585,9 @@ static int dpiConn__getHandles(dpiConn *conn, dpiError *error)
 //-----------------------------------------------------------------------------
 static int dpiConn__getServerCharset(dpiConn *conn, dpiError *error)
 {
+    //DOES THIS REALLY MAKE SENSE?
+    //IF WE DO, WE CAN AND WE NEED... THE NCHAR WOULD ALSO BE INTERESTING
+    //JUST TO BE ABLE TO CHECK WHETER CLIENT CONFIG IS MATCHING OR NOT
     return dpiOci__attrGet(conn->serverHandle, DPI_OCI_HTYPE_SERVER,
             &conn->charsetId, NULL, DPI_OCI_ATTR_CHARSET_ID,
             "get server charset id", error);
@@ -1281,9 +1293,17 @@ int dpiConn_create(const dpiContext *context, const char *userName,
     // create connection
     if (dpiGen__allocate(DPI_HTYPE_CONN, NULL, (void**) &tempConn, &error) < 0)
         return dpiGen__endPublicFn(context, DPI_FAILURE, &error);
-    if (dpiConn__create(tempConn, context, userName, userNameLength,
+    //if (dpiConn__create(tempConn, context, userName, userNameLength,
+    //        password, passwordLength, connectString, connectStringLength,
+    //        NULL, commonParams, createParams, &error) < 0) {
+    int servercsid;
+    servercsid = dpiConn__create(tempConn, context, userName, userNameLength,
             password, passwordLength, connectString, connectStringLength,
-            NULL, commonParams, createParams, &error) < 0) {
+            NULL, commonParams, createParams, &error);
+    //doesn't work (as expected...).. possibly a database describe could
+    //give this information or just a query for NLS db/instance parameters....
+    printf("'ServerCSID' %d (or just some return code as it was used?)\n", servercsid);
+    if (servercsid < 0) {
         dpiConn__free(tempConn, &error);
         return dpiGen__endPublicFn(context, DPI_FAILURE, &error);
     }

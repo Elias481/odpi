@@ -223,12 +223,16 @@ int dpiGlobal__lookupCharSet(const char *name, uint16_t *charsetId,
     // check for well-known encodings first
     if (strcmp(name, DPI_CHARSET_NAME_UTF8) == 0)
         *charsetId = DPI_CHARSET_ID_UTF8;
+    //TODO: should set AL16UTF16 as default for utf16-requests
     else if (strcmp(name, DPI_CHARSET_NAME_UTF16) == 0)
         *charsetId = DPI_CHARSET_ID_UTF16;
     else if (strcmp(name, DPI_CHARSET_NAME_ASCII) == 0)
         *charsetId = DPI_CHARSET_ID_ASCII;
     else if (strcmp(name, DPI_CHARSET_NAME_CESU8) == 0)
         *charsetId = DPI_CHARSET_ID_CESU8;
+    //TODO: disable all UTF(-)16{BE|LE} or possibly allow this
+    //only depending on native byte order to return the UTF16ID
+    //(if at all for the BE case where AL16UTF16 can be used)
     else if (strcmp(name, DPI_CHARSET_NAME_UTF16LE) == 0 ||
             strcmp(name, DPI_CHARSET_NAME_UTF16BE) == 0)
         return dpiError__set(error, "check encoding", DPI_ERR_NOT_SUPPORTED);
@@ -274,6 +278,9 @@ int dpiGlobal__lookupEncoding(uint16_t charsetId, char *encoding,
             return DPI_SUCCESS;
         case DPI_CHARSET_ID_ASCII:
             strcpy(encoding, DPI_CHARSET_NAME_ASCII);
+            return DPI_SUCCESS;
+        case DPI_CHARSET_ID_CESU8:
+            strcpy(encoding, DPI_CHARSET_NAME_CESU8);
             return DPI_SUCCESS;
     }
 
